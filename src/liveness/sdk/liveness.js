@@ -1,5 +1,3 @@
-"use strict";
-
 class Liveness {
   constructor(videoWrapper, config) {
     this.uploadInProgress = 0.0;
@@ -885,16 +883,8 @@ class Liveness {
     );
     context.putImageData(pictureData, 0, 0);
     this.base64 = this.canvasBackground.toDataURL("image/png");
-    window.ReactNativeWebView.postMessage("livenessPhoto", this.base64);
-    // setTimeout(() => {
-    //   this.removeFlashMask();
-
-    //   if (this.isShowPreview) {
-    //     this.openPreviewModal();
-    //   } else {
-    //     this.confirmPicture();
-    //   }
-    // }, 300);
+    this.removeFlashMask();
+    this.openPreviewModal();
   }
   checkBackground() {
     this.canvasLuminance = document.createElement("canvas");
@@ -1351,4 +1341,4 @@ class Liveness {
   }
 }
 
-module.exports = Liveness;
+export default Liveness;
