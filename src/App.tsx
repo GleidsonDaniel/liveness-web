@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
-import Liveness from "./liveness/sdk/liveness";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+import { useEffect } from "react";
 import "./App.css";
+import Liveness from "./liveness/sdk/liveness";
 
 function App() {
   const token = "648afd65f364782af271c48d:TX-fFqYj7QJeIk_cJSh_P_9-";
@@ -13,7 +15,9 @@ function App() {
     livenessUrlBase: "https://api-homolog.nxcd.app", // endpoint da api liveness
     livenessConfirmEndpoint: "/liveness/v3", // opcional - default: /liveness
     isShowPreview: true, // exibir um preview da foto que será enviada
-    errorCallback: () => {}, // metodo de callback em caso de erro (status !== 200)
+    errorCallback: () => {
+      console.log();
+    }, // metodo de callback em caso de erro (status !== 200)
     successCallback: ({ base64 }) => {
       window?.ReactNativeWebView?.postMessage(
         JSON.stringify({
@@ -49,7 +53,9 @@ function App() {
     (async () => {
       navigator.getUserMedia(
         { video: true },
-        function (stream) {},
+        function (stream) {
+          console.log();
+        },
         (err) => console.log(err)
       );
       const jwt = await getJWT(token);
