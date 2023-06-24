@@ -1,23 +1,43 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { useEffect } from "react";
-import "./App.css";
+import { useEffect, useState } from "react";
 import Liveness from "./liveness/sdk/liveness";
+import "./App.css";
 
 function App() {
-  const token = "648afd65f364782af271c48d:TX-fFqYj7QJeIk_cJSh_P_9-";
+  const [init, setInit] = useState(false);
+
+  useEffect(() => {
+    navigator.getUserMedia(
+      { video: true },
+      function (stream) {},
+      (err) => console.log(err)
+    );
+  }, []);
+
+  async function getJWT(apiKey) {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `ApiKey ${apiKey}`,
+      },
+    };
+    const endpoint = "https://api-homolog.nxcd.app/auth-jwt";
+    const response = await fetch(endpoint, requestOptions);
+    const token = await response.json();
+    return token.accessToken;
+  }
 
   const config = {
-    width: 720, // largura de exibição da câmera
+    width: 900, // largura de exibição da câmera
     isDebug: false,
     faceapiPath:
       "https://cdn.jsdelivr.net/gh/nextcodebr/liveness-sdk-web-sample/libs/", // caminho para a faceapi e os modelos
     livenessUrlBase: "https://api-homolog.nxcd.app", // endpoint da api liveness
     livenessConfirmEndpoint: "/liveness/v3", // opcional - default: /liveness
     isShowPreview: true, // exibir um preview da foto que será enviada
-    errorCallback: () => {
-      console.log();
-    }, // metodo de callback em caso de erro (status !== 200)
+    errorCallback: () => {}, // metodo de callback em caso de erro (status !== 200)
     successCallback: ({ base64 }) => {
       window?.ReactNativeWebView?.postMessage(
         JSON.stringify({
@@ -35,36 +55,6 @@ function App() {
     configEyesBoxHeight: 100, // padrão 100 - setar a altura da caixa dos olhos em pixels (soma ou subtrai da altura padrão)
   };
 
-  async function getJWT(apiKey) {
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `ApiKey ${apiKey}`,
-      },
-    };
-    const endpoint = "https://api-homolog.nxcd.app/auth-jwt";
-    const response = await fetch(endpoint, requestOptions);
-    const token = await response.json();
-    return token.accessToken;
-  }
-
-  useEffect(() => {
-    (async () => {
-      navigator.getUserMedia(
-        { video: true },
-        function (stream) {
-          console.log();
-        },
-        (err) => console.log(err)
-      );
-      const jwt = await getJWT(token);
-      const videoWrapper = document.getElementById("video-wrapper"); // obter elemento na tela onde o liveness será injetado
-      window.liveness = new Liveness(videoWrapper, { ...config, token: jwt }); // instancia o liveness
-      window.liveness.start(); // inicia o liveness
-    })();
-  }, []);
-
   return (
     <div
       style={{
@@ -72,6 +62,26 @@ function App() {
       }}
     >
       <div id="video-wrapper"></div>
+      {!init ? (
+        <div className="card">
+          <button
+            onClick={async () => {
+              setInit(true);
+              const videoWrapper = document.getElementById("video-wrapper"); // obter elemento na tela onde o liveness será injetado
+              const token = await getJWT(
+                "648afd65f364782af271c48d:TX-fFqYj7QJeIk_cJSh_P_9-"
+              );
+              window.liveness = new Liveness(videoWrapper, {
+                ...config,
+                token,
+              }); // instancia o liveness
+              window.liveness.start();
+            }}
+          >
+            Iniciar
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
